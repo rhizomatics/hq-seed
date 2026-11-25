@@ -1,0 +1,36 @@
+# One table per product, keyed by its slug: one thing users install or visit, with one roadmap and one release
+# cadence. Lines, platforms and distributions are in hq.toml; terms in AGENTS.md. Update it when a repo is added,
+# renamed or starts publishing somewhere new.
+#
+#   line:          a key of [lines] in hq.toml
+#   repos:         the repos it's built in (default: [slug]); every org repo is in exactly one product
+#   platform:      what it runs on or inside, one or a list (default: its line's); a key of [platforms]. Security
+#                  escalation leaves out transitive vulnerabilities inherited from it.
+#   significance:  "major" for the products that get the stricter design and standards checks
+#   lifecycle:     "active" (default) | "experimental" (not shown publicly) | "archived" (retired: left off the
+#                  public site, even before GitHub archives it)
+#   public:        false to leave it out of everything public
+#   description:   used until GitHub has one
+#   formerly:      { name = <old repo name(s)> }, so a renamed repo keeps its history
+#   artefacts.<name>: how it's delivered. The name is the distribution (a key of [distributions] in hq.toml)
+#                  unless it says `distribution =`. A string is the package name. Fields:
+#     package:     npm / PyPI package, or GHCR image under ghcr.io/<org>/
+#     asset:       release asset (HACS downloads a zip, or a card's .js; counts = HACS installs/updates)
+#     domain:      Home Assistant integration domain (for HA analytics install counts)
+#     goatcounter: GoatCounter site code counting the website's page views; cookieless, so no consent banner
+#                  (policies/project_standards.md)
+#     platform:    overrides the product's, for a product with artefacts on different platforms
+#     formerly:    names an artefact had before, still counted: { asset, package, domain }
+
+# Empty in the seed: add your products. For example:
+#
+# [my-integration]
+# line = "homeassistant"
+# significance = "major"
+# artefacts.homeassistant_marketplace_integration = { asset = "my_integration.zip", domain = "my_integration" }
+# artefacts.website = { goatcounter = "my-integration" }
+#
+# [hq]
+# line = "org"
+# repos = ["hq", "hq-private"]
+# artefacts.website = { goatcounter = "your-org-hq" }

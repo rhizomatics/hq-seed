@@ -1,0 +1,92 @@
+# The org, its product lines and platforms, and the org-specific settings every process, skill and site script
+# reads instead of naming the org itself. Products are in products.toml, community projects in community.toml.
+# Read through @rhizomatics/hq-stats' loadConfig; terms in AGENTS.md ("Names used in these docs").
+#
+# This is the seed's skeleton: fill in [org], then add product lines for what you build. Modules add their
+# platforms and `security_watch` entries; the core skills bring their [capabilities].
+#
+# [org]
+#   name:          display name, used in prose and on the site
+#   github:        GitHub org (or user) that owns the repos
+#   maintainers:   GitHub logins of the human maintainers; the first is assigned hq issues
+#   hq_repo:       the public repo holding these docs (this repo)
+#   private_repo:  repo for reports, data snapshots and hq issues, checked out next to hq_repo;
+#                  omit for an entirely public set-up (hq issues then go in hq_repo)
+#   site_url:      where the public HQ site is served
+# [stats]:         usage stats by @rhizomatics/hq-stats; paths relative to this file
+#   data_dir:      daily snapshots, written by a daily `hq-stats collect`
+#   legacy_hacs:   history from the retired hacs-downloads site
+#   out:           the aggregate the site's Usage pages are built from (not committed)
+# [lines.<slug>]:  product lines, in display order: the heading products are listed under. The slug is also the
+#                  hq issue area label.
+#   name:          the heading
+#   platform:      default platform of its products (a product or artefact can override it)
+#   kind:          "org" for the org's own things (sites, HQ itself): page views only, never counted as products
+# [platforms.<id>]: what products run on or inside, made by others. Static facts only.
+#   builds_on:     the platforms it runs on in turn (Home Assistant on Python)
+# [distributions.<id>]: every way a product is delivered; an artefact's distribution must be one of these
+#                  (`mise run check-hq` checks). hq-stats counts the ones it knows by the same name.
+#   label:         its name on the site (the Product Catalogue)
+#   note:          what it is
+# [labels]:        hq issue labels; an issue gets one source and one area (the areas are the line slugs)
+#
+# security_watch: platform packages our users run but we don't patch, so Dependabot's alerts don't
+# reach the decision that matters. Advisories for them are snapshotted by the private repo's collector.
+# ecosystem is the GitHub advisory API's name (pip, npm); area is the hq issue label.
+#
+# [capabilities.<id>]: who provides each recurring capability, so an HQ skill can be swapped for a better one
+# made by someone else. `providers` is a list, in order of preference, each:
+#   kind:    "hq"      a skill in .claude/skills (ref: its name)
+#            "gh-aw"   a GitHub agentic workflow (ref: owner/repo/path.md@<sha>; where: the repo it runs in)
+#            "skill"   a third-party agent skill or plugin (ref: package@version)
+#            "action"  a scanner run in CI (ref: owner/repo@<version>; where: "admin" for the shared callers,
+#                      or the repos that run it)
+#            "service" a GitHub feature, app or hosted service (ref: its name)
+#   ref, where, note
+#   status:  "active" (default) | "trial" (runs beside the active ones until compared) | "candidate" (chosen,
+#            not running yet)
+# Every skill in .claude/skills is the hq provider of exactly one capability; `mise run check-hq` checks this.
+
+[org]
+name = "Your Org"                      # display name
+github = "your-org"                    # GitHub org (or user) that owns the repos
+maintainers = ["your-github-login"]    # the first is assigned hq issues
+hq_repo = "hq"
+private_repo = "hq-private"            # omit for an entirely public HQ
+site_url = "https://hq.example.org"
+
+[stats]
+data_dir = "data/stats"
+out = "site/src/data/stats.json"
+
+# Product lines, in display order. Add one per kind of thing you build, e.g.
+#   [lines.homeassistant]
+#   name = "Home Assistant"
+#   platform = "homeassistant"
+# Its slug is also the hq issue area label.
+
+[lines.org]
+name = "Organisation"
+kind = "org"
+
+# Platforms: added by the modules you choose (e.g. homeassistant, with builds_on = ["python"]).
+[platforms]
+
+[distributions]
+pypi = { label = "PyPI", note = "a package on PyPI" }
+npm = { label = "npm", note = "a package on npm" }
+ghcr = { label = "Container image", note = "a container image on ghcr.io/<org>/" }
+github_release = { label = "GitHub release", note = "a release asset on GitHub, downloaded directly" }
+homeassistant_marketplace_integration = { label = "HACS integration", note = "a Home Assistant integration installed through HACS: its release zip and domain" }
+homeassistant_marketplace_frontend = { label = "HACS card", note = "a Home Assistant card installed through HACS: its release .js" }
+website = { label = "Website", note = "a website, with its GoatCounter site code" }
+
+[labels]
+sources = [
+  "security-escalation", "dependabot", "support", "forums", "alignment", "github", "docs",
+  "architecture", "platform", "reputation", "roadmap", "project", "adoption", "prs",
+]
+
+# security_watch: platform packages your users run but you don't patch. Added by the platform modules.
+
+# Capabilities: one per core skill, added with the skills.
